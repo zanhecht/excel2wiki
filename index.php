@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             <p style=\"font-size: smaller;\">Created by <a href=\"https://en.wikipedia.org/wiki/User:Ahecht\">Ahecht</a> based on <i>excel2wiki</i> and <i>excel2wikipedia</i> (from <a href=\"http://excel2wiki.net\">http://excel2wiki.net</a>) by <a href=\"http://shawndouglas.com/\">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
             <p style=\"font-size: smaller;\">You can download the <a href=\"excel2wiki.zip\">modified source code</a> or the <a href=\"README.markdown\">documentation</a>.</p>";
 } else {
-    echo "   <h2>Result</h2>\n            <pre id=\"resultBlock\">\n{|";
+    echo "   <h2 style=\"position: relative;\">Result <span href=\"javascript:void(0);\" style=\"font-size: 50%; font-style: normal; position: absolute; bottom: 0.2em; right: 0;\" id=\"copyButton\" data-clipboard-target=\"#resultBlock\"><a href=\"javascript:void(0);\">(Copy to clipboard)</a></span></h2>\n            <pre id=\"resultBlock\">\n{|";
     if (isset($_POST['wikitable'])) {
         echo " class=\"wikitable";
         if (isset($_POST['collapsible'])) {
@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
         }
     }
     echo "\n|}</pre>
-        <input type=\"submit\" value=\"Copy to clipboard\" class=\"mw-ui-button mw-ui-progressive\" id=\"copyButton\" data-clipboard-target=\"#resultBlock\"/>
+        
         <script type=\"text/javascript\">
             <!--
             var copyButton = document.getElementById(\"copyButton\")
@@ -178,8 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             
             clipboard.on('success', function(e) {
                 e.clearSelection();
-                copyButton.value = \"Copied!\"
-                copyButton.disabled = true;
+                copyButton.innerHTML = \"(Copied!)\";
+                copyButton.style.color = \"#595959\";
             });
             
             clipboard.on('error', function(e) {
