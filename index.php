@@ -3,8 +3,15 @@ echo "<!DOCTYPE html>
 <html lang=\"en\">
     <head>
         <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
+        <meta charset=\"UTF-8\">
+        <meta name=\"description\" content=\"Excel xls to wiki copy and paste converter for Wikipedia and Mediawiki\" />
+        <meta name=\"keywords\" content=\"excel2wiki, excel2wikipedia, xls2wiki, xls2wikipedia, excel, wikipedia\" />
+        <meta name=\"author\" content=\"Ahecht\" />
         <!--
-        Copyright (c) 2010 Shawn M. Douglas (shawndouglas.com)
+        The MIT License
+
+        Copyright (c) 2017 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
+        Based on Excel2Wiki, copyright (c) 2010 Shawn M. Douglas (http://shawndouglas.com)
 
         Permission is hereby granted, free of charge, to any person
         obtaining a copy of this software and associated documentation
@@ -26,13 +33,19 @@ echo "<!DOCTYPE html>
         WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
         FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
         OTHER DEALINGS IN THE SOFTWARE.
+        
+        http://www.opensource.org/licenses/mit-license.php
         -->
-        <title>excel2wiki | Excel xls to wiki copy and paste converter for wikipedia and mediawiki</title>
-        <link rel=\"StyleSheet\" href=\"/style.css\" type=\"text/css\" media=\"screen\" />
+        <title>excel2wiki | Excel xls to wiki copy and paste converter for Wikipedia and Mediawiki</title>
+        <!--<link rel=\"StyleSheet\" href=\"/style.css\" type=\"text/css\" media=\"screen\" />-->
         <link rel=\"StyleSheet\" href=\"resources/mediawiki.ui.button.css\" type=\"text/css\" media=\"screen\" />
         <style type=\"text/css\">
-        /* <![CDATA[ */
-            th, td {padding: 7.5px; width: 50%;}
+            <!--
+            body {margin:0; padding:0; border:0; width:100%; background:#fff; min-width:600px; font-size:90%; font-family: sans-serif;}
+            h1, h2, h3 {margin:.8em 0 .2em 0;padding:0;}
+            h2 {border-bottom: 2px solid #1b61dd;}
+            p {margin:.4em 0 .8em 0;padding:0;}
+            th, td {padding: 7.5px; width: 50%; text-align: left; vertical-align: top;}
             input, label, div {display:inline-block !important;}
             code {font-family: monospace !important;}
             a {text-decoration: none; color: #0645ad;}
@@ -40,10 +53,10 @@ echo "<!DOCTYPE html>
             a:visited {color:#0b0080}
             a:active {color:#faa700}
             input:disabled + label {color: #949494}
-        /* ]]> */
+            -->
         </style>
         <script type=\"text/javascript\">
-        /* <![CDATA[ */
+            <!--
             function headerrowClick() {
                 if (document.getElementById('headerrow').checked && document.getElementById('wikitable').checked) {
                     document.getElementById('sortable').disabled = false;
@@ -80,15 +93,15 @@ echo "<!DOCTYPE html>
                    document.getElementById('autocollapse').disabled = true;
                }
             }
-        /* ]]> */
+            //-->
         </script>
     </head>
     <body onload=\"headerrowClick(); templatetableClick();\">
         <div style=\"margin-right: auto;margin-left: auto;max-width: 960px;display: block !important;\">
-            <h1>Copy and Paste Excel-to-Wiki Converter</h1>
+            <h1>Excel2Wiki: Copy and Paste Excel-to-Wiki Converter</h1>
             <form method=\"post\" action=\"".htmlentities($_SERVER['PHP_SELF'])."\">
                 <div style=\"text-align: center;margin-right: auto;margin-left: auto;max-width: 960px;display: block !important;\" >
-                    <textarea name=\"data\" rows=\"10\" cols=\"80\" style=\"width:100%;margin: 7.5px;\">".$_POST['data']."</textarea><br />
+                    <textarea name=\"data\" rows=\"10\" cols=\"80\" style=\"width:100%;margin: 7.5px;\">".(isset($_POST['data']) ? $_POST['data'] : "")."</textarea><br />
                     <table style=\"margin: 7.5px auto;font-size: initial;\"><tr>
                         <td><div class=\"mw-ui-checkbox\"><input type=\"checkbox\" name=\"headerrow\" id=\"headerrow\"".((isset($_POST['headerrow']) or ($_SERVER['REQUEST_METHOD'] != 'POST')) ? " checked=\"checked\"" : "")." onclick=\"headerrowClick();\"/><label for=\"headerrow\">format first row as header</label></div></td>
                         <td><div class=\"mw-ui-checkbox\"><input type=\"checkbox\" name=\"headercolumn\" id=\"headercolumn\"".(isset($_POST['headercolumn']) ? " checked=\"checked\"" : "")." /><label for=\"headercolumn\">format first column as header</label></div><br /></td>
@@ -112,8 +125,8 @@ echo "<!DOCTYPE html>
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     echo "
             <p style=\"margin-top: 2em;\"><b>Instructions:</b> Copy and paste cells from Excel and click submit. Mouseover options for more information.</p>
-            <p style=\"font-size: smaller;\">Based on <a href=\"excel2wiki.php\">excel2wiki</a> and <a href=\"wikipedia.php\">excel2wikipedia</a> (originally located at <a href=\"http://excel2wiki.net\">http://excel2wiki.net</a>) by <a href=\"http://shawndouglas.com/\">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
-            <p style=\"font-size: smaller;\">You can download the <a href=\"https://github.com/sdouglas/excel2wiki\">original source code</a>, the <a href=\"index.php.txt\">modified source code</a>, or the <a href=\"README.markdown\">documentation</a>.</p>";
+            <p style=\"font-size: smaller;\">Created by <a href=\"https://en.wikipedia.org/wiki/User:Ahecht\">Ahecht</a> based on <i>excel2wiki</i> and <i>excel2wikipedia</i> (from <a href=\"http://excel2wiki.net\">http://excel2wiki.net</a>) by <a href=\"http://shawndouglas.com/\">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
+            <p style=\"font-size: smaller;\">You can download the <a href=\"excel2wiki.zip\">modified source code</a> or the <a href=\"README.markdown\">documentation</a>.</p>";
 } else {
     echo "   <h2>Result</h2>\n            <pre>\n{|";
     if (isset($_POST['wikitable'])) {
@@ -132,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
         echo " {{table}}";
     }
     echo "\n";
-    $lines = preg_split("/\n/", $_POST['data']);
+    $lines = isset($_POST['data']) ? preg_split("/\n/", $_POST['data']) : [];
     $n = sizeof($lines) - 1;
     if (($n>0) and (preg_replace('/[^\PC]/u', '', $lines[$n]) == '')) {
         $lines = array_slice($lines, 0, $n);
@@ -146,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             echo ($n > 0) ? "|-\n" : "";
         } else {
             if (isset($_POST['headercolumn'])) {
-                echo "! " . $line[0] . (((($index < $n) and ($n > 0)) or $line[1]) ? "\n" : "");
+                echo "! " . $line[0] . (((($index < $n) and ($n > 0)) or (sizeof($line)>1)) ? "\n" : "");
                 $line = array_slice($line, 1);
             }
             $data = implode(" || ", $line);
