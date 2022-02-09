@@ -10,7 +10,7 @@ echo "<!DOCTYPE html>
 		<!--
 		The MIT License
 
-		Copyright (c) 2019 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
+		Copyright (c) 2022 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
 		Based on Excel2Wiki, copyright (c) 2010 Shawn M. Douglas (http://shawndouglas.com)
 
 		Permission is hereby granted, free of charge, to any person
@@ -141,6 +141,9 @@ echo "<!DOCTYPE html>
 					<tr>
 						<td><div class=\"mw-ui-checkbox\" title=\"Default to collapsed. Requires 'collapsible'.\"><input type=\"checkbox\" name=\"collapsed\" id=\"collapsed\"".(isset($_POST['collapsed']) ? " checked=\"checked\"" : "")." onclick=\"document.getElementById('autocollapse').checked = false;\" /><label for=\"collapsed\">collapsed</label></div></td>
 						<td><div class=\"mw-ui-checkbox\" title=\"Collapse if 3+ collapsible tables on page. Requires 'collapsible'.\"><input type=\"checkbox\" name=\"autocollapse\" id=\"autocollapse\"".(isset($_POST['autocollapse']) ? " checked=\"checked\"" : "")." onclick=\"document.getElementById('collapsed').checked = false;\" /><label for=\"autocollapse\">autocollapse</label></div><br /></td>
+					</tr>
+					<tr>
+						<td colspan=\"2\"><div class=\"mw-ui-checkbox\"><input type=\"checkbox\" name=\"transpose\" id=\"transpose\"".(isset($_POST['transpose']) ? " checked=\"checked\"" : "")." /><label for=\"transpose\">transpose rows and columns</label></div></td>
 					</tr></table>
 					<input type=\"submit\"  value=\"Convert\" class=\"mw-ui-button mw-ui-progressive\" />
 				</div>
@@ -149,8 +152,8 @@ echo "<!DOCTYPE html>
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 	echo "
 			<p style=\"margin-top: 2em;\"><b>Instructions:</b> Copy and paste cells from Excel and click submit. Mouseover options for more information.</p>
-			<p style=\"font-size: smaller;\">Excel2Wiki 9.0 created by <a href=\"https://en.wikipedia.org/wiki/User:Ahecht\">Ahecht</a> based on <i>excel2wiki</i> and <i>excel2wikipedia</i> (from <a href=\"http://excel2wiki.net\">http://excel2wiki.net</a>) by <a href=\"http://shawndouglas.com/\">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
-			<p style=\"font-size: smaller;\">You can download the <a href=\"excel2wiki.zip\">modified source code</a> or the <a href=\"README.markdown\">documentation</a>.</p>";
+			<p style=\"font-size: smaller;\">Excel2Wiki 10.0 created by <a href=\"https://en.wikipedia.org/wiki/User:Ahecht\">Ahecht</a> based on <i>excel2wiki</i> and <i>excel2wikipedia</i> (from <a href=\"http://excel2wiki.net\">http://excel2wiki.net</a>) by <a href=\"http://shawndouglas.com/\">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
+			<p style=\"font-size: smaller;\">Source available at <a href=\"https://github.com/zanhecht/excel2wiki\">https://github.com/zanhecht/excel2wiki</a>.</p>";
 } else {
 	echo "	<h2 style=\"position: relative;\">Result <span href=\"javascript:void(0);\" style=\"font-size: 50%; font-style: normal; position: absolute; bottom: 0.2em; right: 0;\" id=\"copyButton\" data-clipboard-target=\"#resultBlock\"><a href=\"javascript:void(0);\">(Copy to clipboard)</a></span></h2>\n			<pre id=\"resultBlock\">\n{|";
 	if (isset($_POST['wikitable'])) {
@@ -169,17 +172,29 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 		echo " {{table}}";
 	}
 	echo "\n";
-	$lines = isset($_POST['data']) ? preg_split("/\n/", $_POST['data']) : [];
+	$lines = isset($_POST['data']) ? preg_split("/\r?\n/", $_POST['data']) : [];
 	$n = sizeof($lines) - 1;
 	if (($n>0) and (preg_replace('/[^\PC]/u', '', $lines[$n]) == '')) {
 		$lines = array_slice($lines, 0, $n);
 		--$n;
 	}
+	$dataTable = [];
 	foreach ($lines as $index => $value) {
-		$line = preg_split("/\t/", $value);
+		$dataTable[$index] = preg_split("/\t/", $value);
+	}
+	if (isset($_POST['transpose'])) {
+		$tempArray = array();
+		foreach ($dataTable as $key => $subarr) {
+			foreach ($subarr as $subkey => $subvalue) {
+				$tempArray[$subkey][$key] = $subvalue;
+			}
+		}
+		$dataTable = $tempArray;
+	}
+	foreach ($dataTable as $index => $line) {
 		if ($index == 0 && isset($_POST['headerrow'])) {
 			$data = implode(" !! ", $line);
-			echo '! ' . $data;
+			echo '! ' . $data . "\n";
 			echo ($n > 0) ? "|-\n" : "";
 		} else {
 			if (isset($_POST['headercolumn'])) {
@@ -187,11 +202,11 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 				$line = array_slice($line, 1);
 			}
 			$data = implode(" || ", $line);
-			echo $line ? ("| " . $data) : "";
+			echo $line ? ("| " . $data . "\n") : "";
 			echo (($index < $n) and ($n > 0)) ? "|-\n" : "";
 		}
 	}
-	echo "\n|}</pre>
+	echo "|}</pre>
 		
 		<script type=\"text/javascript\">
 			<!--
