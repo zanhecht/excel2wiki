@@ -1,4 +1,5 @@
 <?php
+ini_set('memory_limit', '1024M');
 echo "<!DOCTYPE html>
 <html lang=\"en\">
 	<head>
@@ -197,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			echo '! ' . $data . "\n";
 			echo ($n > 0) ? "|-\n" : "";
 		} else {
-			if (isset($_POST['headercolumn'])) {
+			if (isset($_POST['headercolumn']) && array_key_exists(0, $line)) {
 				echo "! " . $line[0] . (((($index < $n) and ($n > 0)) or (sizeof($line)>1)) ? "\n" : "");
 				$line = array_slice($line, 1);
 			}
