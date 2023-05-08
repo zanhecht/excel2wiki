@@ -126,7 +126,7 @@ echo "<!DOCTYPE html>
 			<h1>Excel2Wiki: Copy and Paste Excel-to-Wiki Converter</h1>
 			<form method=\"post\" action=\"".htmlentities($_SERVER['PHP_SELF'])."\">
 				<div style=\"text-align: center;margin-right: auto;margin-left: auto;max-width: 960px;display: block !important;\" >
-					<textarea name=\"data\" rows=\"10\" cols=\"80\" style=\"width:100%;margin: 7.5px;\">".(isset($_POST['data']) ? $_POST['data'] : "")."</textarea><br />
+					<textarea name=\"data\" rows=\"10\" cols=\"80\" style=\"width:100%;margin: 7.5px;\" maxlength=\"4000000\">".(isset($_POST['data']) ? $_POST['data'] : "")."</textarea><br />
 					<table style=\"margin: 7.5px auto;font-size: initial;\"><tr>
 						<td><div class=\"mw-ui-checkbox\"><input type=\"checkbox\" name=\"headerrow\" id=\"headerrow\"".((isset($_POST['headerrow']) or ($_SERVER['REQUEST_METHOD'] != 'POST')) ? " checked=\"checked\"" : "")." onclick=\"headerrowClick();\"/><label for=\"headerrow\">format first row as header</label></div></td>
 						<td><div class=\"mw-ui-checkbox\"><input type=\"checkbox\" name=\"headercolumn\" id=\"headercolumn\"".(isset($_POST['headercolumn']) ? " checked=\"checked\"" : "")." /><label for=\"headercolumn\">format first column as header</label></div><br /></td>
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			-->
 		</script>";
 } else {
-	echo "	<h2 style=\"position: relative;\">Result</h2>\n<h3 id='errorMessage' style='color: red'>ERROR: Submitted data exceeds 8MB limit.</h3>";
+	echo "	<h2 style=\"position: relative;\">Result</h2>\n<h3 id=\"errorMessage\" style=\"color: red;\">ERROR: Submitted data exceeds 8MB limit.</h3>";
 }
 echo "\n		</div>
 	</body>
