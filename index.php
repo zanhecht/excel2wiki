@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			<p style=\"margin-top: 2em;\"><b>Instructions:</b> Copy and paste cells from Excel and click submit. Mouseover options for more information.</p>
 			<p style=\"font-size: smaller;\">Excel2Wiki 10.0 created by <a href=\"https://en.wikipedia.org/wiki/User:Ahecht\">Ahecht</a> based on <i>excel2wiki</i> and <i>excel2wikipedia</i> (from <a href=\"http://excel2wiki.net\">http://excel2wiki.net</a>) by <a href=\"http://shawndouglas.com/\">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
 			<p style=\"font-size: smaller;\">Source available at <a href=\"https://github.com/zanhecht/excel2wiki\">https://github.com/zanhecht/excel2wiki</a>.</p>";
-} else {
+} else if ($_SERVER['CONTENT_LENGTH'] < 8388608) {
 	echo "	<h2 style=\"position: relative;\">Result <span href=\"javascript:void(0);\" style=\"font-size: 50%; font-style: normal; position: absolute; bottom: 0.2em; right: 0;\" id=\"copyButton\" data-clipboard-target=\"#resultBlock\"><a href=\"javascript:void(0);\">(Copy to clipboard)</a></span></h2>\n			<pre id=\"resultBlock\">\n{|";
 	if (isset($_POST['wikitable'])) {
 		echo " class=\"wikitable";
@@ -225,6 +225,8 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			});
 			-->
 		</script>";
+} else {
+	echo "	<h2 style=\"position: relative;\">Result</h2>\n<h3 id='errorMessage' style='color: red'>ERROR: Submitted data exceeds 8MB limit.</h3>";
 }
 echo "\n		</div>
 	</body>
