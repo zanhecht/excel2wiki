@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta charset="UTF-8">
+		<meta name="description" content="Excel xls to wiki copy and paste converter for Wikipedia and Mediawiki" />
+		<meta name="keywords" content="excel2wiki, excel2wikipedia, xls2wiki, xls2wikipedia, excel, wikipedia" />
+		<meta name="author" content="Ahecht" />
+		<!--
+		The MIT License
+
+		Copyright (c) 2022 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
+		Based on Excel2Wiki, copyright (c) 2010 Shawn M. Douglas (http://shawndouglas.com)
+
+		Permission is hereby granted, free of charge, to any person
+		obtaining a copy of this software and associated documentation
+		files (the "Software"), to deal in the Software without
+		restriction, including without limitation the rights to use,
+		copy, modify, merge, publish, distribute, sublicense, and/or sell
+		copies of the Software, and to permit persons to whom the
+		Software is furnished to do so, subject to the following
+		conditions:
+
+		The above copyright notice and this permission notice shall be
+		included in all copies or substantial portions of the Software.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+		EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+		OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+		NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+		HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+		WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+		FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+		OTHER DEALINGS IN THE SOFTWARE.
+		
+		http://www.opensource.org/licenses/mit-license.php
+		-->
+		<title>excel2wiki | Excel xls to wiki copy and paste converter for Wikipedia and Mediawiki</title>
+		<link rel="StyleSheet" href="resources/mediawiki.ui.button.css" type="text/css" media="screen" />
+		<style type="text/css">
+			<!--
+			body {margin:0; padding:0; border:0; width:100%; background:#fff; min-width:600px; font-size:90%; font-family: sans-serif;}
+			h1, h2, h3 {margin:.8em 0 .2em 0;padding:0;}
+			h2 {border-bottom: 2px solid #1b61dd;}
+			p {margin:.4em 0 .8em 0;padding:0;}
+			th, td {padding: 7.5px; width: 50%; text-align: left; vertical-align: top;}
+			input, label, div {display:inline-block !important;}
+			code {font-family: monospace !important;}
+			a {text-decoration: none; color: #0645ad;}
+			a:hover, a:focus {text-decoration: underline;}
+			a:visited {color:#0b0080}
+			a:active {color:#faa700}
+			input:disabled + label {color: #949494}
+			-->
+		</style>
+		<script src="resources/clipboard.min.js"></script>
+		<script type="text/javascript">
+			<!--
+			var collapsibleWasChecked = false;
+			var collapsedWasChecked = false;
+			var sortableWasChecked = false;
+			var autocollapseWasChecked = false;
+			
+			function headerrowClick() {
+				if (document.getElementById('headerrow').checked && document.getElementById('wikitable').checked) {
+					document.getElementById('sortable').disabled = false;
+					document.getElementById('sortable').checked = sortableWasChecked;
+				} else {
+					document.getElementById('sortable').disabled = true;
+					sortableWasChecked = document.getElementById('sortable').checked;
+					document.getElementById('sortable').checked = false;
+				}
+			}
+			
+			function templatetableClick() {
+				if (document.getElementById('templatetable').checked) {
+					document.getElementById('wikitable').checked = false;
+				}
+				wikitableClick();
+			}
+		
+			function wikitableClick() {
+				if (document.getElementById('wikitable').checked) {
+					document.getElementById('templatetable').checked = false;
+					document.getElementById('collapsible').disabled = false;
+					document.getElementById('collapsible').checked = collapsibleWasChecked;
+					if (document.getElementById('headerrow').checked) {
+						document.getElementById('sortable').disabled = false;
+						document.getElementById('sortable').checked = sortableWasChecked;
+						}
+				} else {
+					document.getElementById('collapsible').disabled = true;
+					collapsibleWasChecked = document.getElementById('collapsible').checked;
+					document.getElementById('collapsible').checked = false;
+					document.getElementById('sortable').disabled = true;
+					sortableWasChecked = document.getElementById('sortable').checked;
+					document.getElementById('sortable').checked = false;
+				}
+				collapsibleClick();
+			}
+
+			function collapsibleClick() {
+				if (document.getElementById('wikitable').checked && document.getElementById('collapsible').checked) {
+					document.getElementById('collapsed').disabled = false;
+					document.getElementById('collapsed').checked = collapsedWasChecked;
+					document.getElementById('autocollapse').disabled = false;
+					document.getElementById('autocollapse').checked = autocollapseWasChecked;
+				} else {
+					document.getElementById('collapsed').disabled = true;
+					collapsedWasChecked = document.getElementById('collapsed').checked;
+					document.getElementById('collapsed').checked = false;
+					document.getElementById('autocollapse').disabled = true;
+					autocollapseWasChecked = document.getElementById('autocollapse').checked;
+					document.getElementById('autocollapse').checked = false;
+				}
+			}
+			
+			function convertExcelToWiki() {
+				var input = document.getElementById('data').value;
+				var result = document.getElementById('result');
+				var resultBlock = document.getElementById('resultBlock');
+
+				var lines = input.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+				var n = lines.length - 1;
+				if (n > 0 && lines[n].replace(/\p{C}/gu, '') === '') {
+					lines.pop();
+					n--;
+				}
+				
+				var form = {}
+				document.querySelectorAll('#inputForm input').forEach(
+					(element) => form[element.id] = document.getElementById(element.id).checked
+				);
+
+				// Table header
+				output = '{|';
+				if (form.wikitable) {
+					output += ' class="wikitable';
+					if (form.collapsible) {
+						output += ' collapsible';
+						if (form.collapsed) {
+							output += ' collapsed';
+						} else if (form.autocollapse) {
+							output += ' autocollapse';
+						}
+					}
+					if (form.sortable && form.headerrow) {
+						output += ' sortable';
+					}
+					output += '"';
+				} else if (form.templatetable) {
+					output += ' {{table}}';
+				}
+				output += '\n'
+
+				if (n < 0 || !input.trim()) {
+					output += ((form.headerrow || form.headercolumn) ? '!' : '|') + ' \n|}';
+					resultBlock.textContent = output;
+					return;
+				}
+				
+				// Rows
+				var dataTable = [];
+				lines.forEach((value, index) => {
+					dataTable[index] = value.split('\t');
+				});
+				if (form.transpose) {
+					const tempArray = [];
+					dataTable.forEach((subarr, key) => {
+							subarr.forEach((subvalue, subkey) => {
+									if (!tempArray[subkey]) {tempArray[subkey] = [];}
+									tempArray[subkey][key] = subvalue;
+							});
+					});
+					dataTable = tempArray;
+				}
+				dataTable.forEach((line, index) => {
+					if (index == 0 && form.headerrow) {
+						const data = line.join(" !! ");
+						output += '! ' + data + '\n';
+						output += (n > 0) ? '|-\n' : '';
+					} else {
+						if (form.headercolumn && typeof line[0] !== 'undefined') {
+							output += '! ' + line[0] + '\n';
+							line.shift();
+						}
+						const data = line.join(' || ');
+						output += (line.length > 0) ? ('| ' + data + '\n') : '';
+						output += ((index < n) && (n > 0)) ? '|-\n' : '';
+					}
+				});
+				resultBlock.textContent = output +'|}';
+			}
+			//-->
+		</script>
+	</head>
+	<body>
+		<div style="margin-right: auto;margin-left: auto;max-width: 960px;display: block !important;">
+			<h1>Excel2Wiki: Copy and Paste Excel-to-Wiki Converter</h1>
+			<form id="inputForm" method="post" onsubmit="return false;">
+				<div style="text-align: center;margin-right: auto;margin-left: auto;max-width: 960px;display: block !important;" >
+					<textarea id="data" name="data" rows="10" cols="80" style="width:100%;margin: 7.5px;" maxlength="2097152"></textarea><br />
+					<table style="margin: 7.5px auto;font-size: initial;"><tr>
+						<td><div class="mw-ui-checkbox" title="Format first row as header."><input type="checkbox" name="headerrow" id="headerrow" checked="checked" onclick="headerrowClick();"/><label for="headerrow">format first row as header</label></div></td>
+						<td><div class="mw-ui-checkbox" title="Format first column as header."><input type="checkbox" name="headercolumn" id="headercolumn" /><label for="headercolumn">format first column as header</label></div><br /></td>
+					</tr>
+					<tr>
+						<td><div class="mw-ui-checkbox" title="For wikis running MediaWiki 1.16+."><input type="checkbox" name="wikitable" id="wikitable" checked="checked" onclick="wikitableClick();" /><label for="wikitable">use <code>class="wikitable"</code></label></div></td>
+						<td><div class="mw-ui-checkbox" title="For wikis that define table styles with a {{table}} template."><input type="checkbox" name="templatetable" id="templatetable" onclick="templatetableClick();" /><label for="templatetable">use <code>{{table}}</code> </label></div><br /></td>
+					</tr>
+					<tr>
+						<td><div class="mw-ui-checkbox" title='Table can be collapsed or hidden. Requires class="wikitable".'><input type="checkbox" name="collapsible" id="collapsible" onclick="collapsibleClick();" /><label for="collapsible">collapsible</label></div></td>
+						<td><div class="mw-ui-checkbox" title='Show sort buttons. Requires header row and class="wikitable".'><input type="checkbox" name="sortable" id="sortable" /><label for="sortable">sortable</label></div><br /></td>
+					</tr>
+					<tr>
+						<td><div class="mw-ui-checkbox" title="Default to collapsed. Requires 'collapsible'."><input type="checkbox" name="collapsed" id="collapsed" onclick="document.getElementById('autocollapse').checked = false;" /><label for="collapsed">collapsed</label></div></td>
+						<td><div class="mw-ui-checkbox" title="Collapse if 3+ collapsible tables on page. Requires 'collapsible'."><input type="checkbox" name="autocollapse" id="autocollapse" onclick="document.getElementById('collapsed').checked = false;" /><label for="autocollapse">autocollapse</label></div><br /></td>
+					</tr>
+					<tr>
+						<td colspan="2"><div class="mw-ui-checkbox" title="Rotate the data within the table 90°, so rows become columns and vice versa."><input type="checkbox" name="transpose" id="transpose"/><label for="transpose">transpose rows and columns</label></div></td>
+					</tr></table>
+				</div>
+			</form>
+			
+			<h2 style="position: relative; margin-bottom: 1em;">Result <span href="javascript:void(0);" style="font-size: 50%; font-style: normal; position: absolute; bottom: 0.2em; right: 0;" id="copyButton" data-clipboard-target="#resultBlock"><a href="javascript:void(0);">(Copy to clipboard)</a></span></h2>
+			<pre style="white-space: pre-wrap; overflow: auto;" id="resultBlock"></pre>
+			
+			<h2 style="margin-top: 1em;"></h2>
+			<p style="margin-top: 2em;"><b>Instructions:</b> Copy and paste cells from Excel and the output will update automatically. Mouseover options for more information.</p>
+			<p style="font-size: smaller;">Excel2Wiki 11.0 created by <a href="https://en.wikipedia.org/wiki/User:Ahecht">Ahecht</a> based on <i>excel2wiki</i> and <i>excel2wikipedia</i> (from <a href="http://excel2wiki.net">http://excel2wiki.net</a>) by <a href="http://shawndouglas.com/">Shawn M. Douglas</a> (gmail: shawn.douglas)</p>
+			<p style="font-size: smaller;">Source available at <a href="https://github.com/zanhecht/excel2wiki">https://github.com/zanhecht/excel2wiki</a>.</p>
+		</div>
+		
+		<script>
+			<!--
+			headerrowClick();
+			templatetableClick();
+			convertExcelToWiki();
+			document.querySelectorAll('#inputForm textarea, #inputForm input').forEach((element) => {
+				element.addEventListener('input', convertExcelToWiki);
+				element.addEventListener('change', convertExcelToWiki);
+			});
+			
+			var copyButton = document.getElementById("copyButton")
+			var clipboard = new ClipboardJS(copyButton);
+			
+			clipboard.on('success', function(e) {
+				e.clearSelection();
+				copyButton.innerHTML = "(Copied!)";
+				copyButton.style.color = "#595959";
+			});
+			
+			clipboard.on('error', function(e) {
+				console.log(e);
+			});
+			//-->
+		</script>
+	</body>
+</html>
