@@ -35,4 +35,4 @@ Copy and paste cells from Excel and click submit. Mouseover options for more inf
 
 ## Installation
 
-Drop index.html and the resources folder on a server running PHP.
+Drop index.html and the resources folder on a web server.
