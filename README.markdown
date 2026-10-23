@@ -1,6 +1,6 @@
 The MIT License
 
-Copyright (c) 2022 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
+Copyright (c) 2026 Ahecht (https://en.wikipedia.org/wiki/User:Ahecht)
 Based on Excel2Wiki, copyright (c) 2010 Shawn M. Douglas (http://shawndouglas.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,8 +35,4 @@ Copy and paste cells from Excel and click submit. Mouseover options for more inf
 
 ## Installation
 
-Drop index.php and the resources folder on a server running PHP.
-
-### Dependencies
-
-* [PHP](http://www.php.net/)
+Drop index.html and the resources folder on a server running PHP.
